@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  argus-webapp:
+    build:
+      context: .  # Directory containing the Dockerfile
+    ports:
+      - "3000:3000"  # Map port 3000 on the host to port 3000 on the container
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - .env

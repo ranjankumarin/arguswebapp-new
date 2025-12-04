@@ -1,0 +1,152 @@
+import nextPWA from "next-pwa";
+
+const nextConfig = {
+    images: {
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: 'argusnewdashboard.s3.ap-south-1.amazonaws.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'uat-argusnewdashboard.s3.ap-south-1.amazonaws.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 's3.ap-south-1.amazonaws.com',
+            pathname: '/argusnewdashboard/**',
+          },
+          {
+            protocol: 'https',
+            hostname: 's3.ap-south-1.amazonaws.com',
+            pathname: '/uat-argusnewdashboard/**',
+          },
+          {
+            protocol: 'https',
+            hostname: 'baliyatra.argusnews.in',
+          },
+                    // allow main site hosts used for static assets
+                    {
+                        protocol: 'https',
+                        hostname: 'argusnews.in',
+                    },
+                    {
+                        protocol: 'https',
+                        hostname: 'www.argusnews.in',
+                    },
+                    {
+                        protocol: 'https',
+                        hostname: 'argusenglish.in',
+                    },
+                    {
+                        protocol: 'https',
+                        hostname: 'www.argusenglish.in',
+                    },
+                    {
+                        protocol: 'https',
+                        hostname: 'uat.argusnews.in',
+                    },
+                     {
+                        protocol: 'https',
+                        hostname: 'www.uat.argusnews.in',
+                    },
+                    {
+                        protocol: 'https',
+                        hostname: 'uat.argusenglish.in',
+                    },
+                    {
+                        protocol: 'https',
+                        hostname: 'www.uat.argusenglish.in',
+                    },
+        ],
+        minimumCacheTTL: 3600,
+        deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+        imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+        formats: ['image/webp'],
+        dangerouslyAllowSVG: true,
+        contentDispositionType: 'inline',
+        // Disable Next.js image optimization in production to avoid routing issues
+        unoptimized: process.env.NODE_ENV === 'production',
+  },
+  // Add custom fetch configuration for image optimization
+  env: {
+    NEXT_IMAGE_TIMEOUT: '15000', // 15 second timeout
+    NEXT_IMAGE_RETRY_COUNT: '3',
+  },
+  webpack(config) {
+    config.cache = true;
+    return config;
+  },
+
+  reactStrictMode: true,
+
+  async rewrites() {
+        return [
+            {
+                source: '/app',
+                destination: '/page-app',
+            },
+        ]
+    },
+
+    async headers() {
+        return [
+            {
+                source: '/assets/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/_next/image',
+                headers: [
+                    {
+                        key: 'Access-Control-Allow-Origin',
+                        value: '*',
+                    },
+                    {
+                        key: 'Access-Control-Allow-Methods',
+                        value: 'GET, OPTIONS',
+                    },
+                    {
+                        key: 'Access-Control-Allow-Headers',
+                        value: 'Content-Type',
+                    },
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=3600, s-maxage=86400',
+                    },
+                ],
+            },
+            {
+                source: '/api/image-proxy',
+                headers: [
+                    {
+                        key: 'Access-Control-Allow-Origin',
+                        value: '*',
+                    },
+                    {
+                        key: 'Access-Control-Allow-Methods',
+                        value: 'GET, OPTIONS',
+                    },
+                    {
+                        key: 'Access-Control-Allow-Headers',
+                        value: 'Content-Type',
+                    },
+                ],
+            },
+        ];
+    },
+};
+
+const withPWA = nextPWA({
+  dest: "public", 
+  disable: process.env.NODE_ENV === "development", 
+  register: true, 
+  skipWaiting: true, 
+});
+
+export default withPWA(nextConfig);
